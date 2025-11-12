@@ -2,484 +2,167 @@
 <html lang="es">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Selector de color</title>
+
 <style>
-  :root{
-    --ui-bg:#f7f9fb;
-    --card:#ffffff;
-    --ink:#1f2937;
-    --muted:#6b7280;
-    --brand:#2e7d62;
-    --ring:#d1e7dd;
-    --border:#e5e7eb;
+  body{font-family:'Roboto',sans-serif;}
+
+  /* Etiquetas del dropdown */
+  .color-mixer-dropdown__label{
+    font-family:'Roboto',sans-serif;
+    font-size:19px;
   }
-  *{box-sizing:border-box}
-  body{
-    margin:0;
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Inter, Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
-    color:var(--ink);
-    background:var(--ui-bg);
+  .color-mixer-dropdown__toggle .color-mixer-dropdown__label:after{
+    height:15px!important;width:15px!important;
   }
-  .wrap{
-    max-width:1200px;
-    margin:40px auto;
-    padding:24px;
-    background:var(--card);
-    border:1px solid var(--border);
-    border-radius:16px;
-    box-shadow: 0 6px 20px rgba(16,24,40,.06);
+
+  /* Quitar bullets heredados */
+  >ul li:before, ul li:before{display:none;}
+
+  .button--print{display:none;}
+
+  /* Igual que el original */
+  #hs_cos_wrapper_main_body-module-5 .color-mixer{--color-border-radius:0px;}
+
+  button--primary button--print{display:none;}
+  [type=button]:focus,[type=button]:hover,[type=submit]:focus,[type=submit]:hover,button:focus,button:hover{
+    color:black;background-color:#fff;text-decoration:none;
   }
-  h1{
-    margin:0 0 8px;
-    font-size: clamp(26px, 2.4vw, 34px);
-    line-height:1.1;
+
+  .button.button--secondary{
+    background-color:#fff!important;
+    background-image:none!important;
+    color:#657868!important;
+    border:none;
+    font-family:'Roboto',sans-serif;
+    font-size:17px!important;
+    font-style:normal!important;
   }
-  .sub{
-    color:var(--muted);
-    margin-bottom:24px;
-  }
-  .grid{
-    display:grid;
-    grid-template-columns: 1fr 1fr;
-    gap:28px;
-  }
-  @media (max-width: 980px){
-    .grid{grid-template-columns: 1fr}
-  }
-  .panel{
-    border:1px solid var(--border);
-    border-radius:14px;
-    padding:16px;
-    background:#fff;
-  }
-  .row{
-    display:grid;
-    grid-template-columns: 42px 1fr 180px 48px;
-    gap:12px;
-    align-items:center;
-    padding:12px;
-    border:1px solid var(--border);
-    border-radius:12px;
-    margin-bottom:12px;
-  }
-  .swatch{
-    width:32px;height:32px;border-radius:99px;border:1px solid #cbd5e1;
-    box-shadow: inset 0 0 0 2px rgba(255,255,255,.5);
-  }
-  input[type="range"]{
-    width:100%;
-    accent-color: var(--brand);
-  }
-  select{
-    width:100%;
-    height:40px;
-    border:1px solid var(--border);
-    border-radius:10px;
-    padding:0 10px;
-    background:#fff;
-    font-size:14px;
-  }
-  .btn{
-    height:40px;
-    border:1px solid var(--border);
-    background:#fff;
-    border-radius:10px;
+
+  .button{
+    background-color:#adbdb1!important;
+    border:var(--button-border) solid;
+    border-color:#adbdb1!important;
+    border-radius:0!important;
     cursor:pointer;
-    font-weight:600;
+    font-family:'Roboto',sans-serif!important;
+    font-size:24px;
+    font-weight:500;
+    letter-spacing:var(--button-letter-spacing);
+    line-height:1;
+    padding:var(--button-padding);
+    position:relative;
+    text-align:center;
+    text-decoration:none;
+    text-transform:var(--button-text-transform);
+    -webkit-transition:.2s;transition:.2s;
+    white-space:normal;
   }
-  .btn:disabled{opacity:.45;cursor:not-allowed}
-  .btn-remove{
-    width:40px;height:40px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;
-    font-size:18px;line-height:0;
-  }
-  .controls{
-    display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-top:10px;
-  }
-  .pill{
-    display:inline-flex;align-items:center;gap:6px;
-    padding:8px 10px;border-radius:99px;background:#f3faf6;border:1px solid var(--ring);color:#0f5132;
-    font-weight:600;font-size:13px;
-  }
-  .muted{color:var(--muted)}
-  .danger{color:#b42318}
-  canvas{
-    width:100%; height:auto; display:block;
+
+  .cmx-wrap{
+    max-width:1200px;
+    margin:28px auto;
+    padding:24px;
     background:#fff;
-    border:1px solid var(--border);
+    border:1px solid #E6E9EF;
     border-radius:14px;
-  }
-  .dl{
-    display:flex;justify-content:center;margin-top:16px
-  }
-  .btn-primary{
-    border:1px solid #0f766e;
-    background:#15803d1a;
-    color:#0f766e;
-  }
-  .btn-accent{
-    border:1px solid #2e7d62;
-    background:#2e7d6214;
-    color:#205746;
+    box-shadow:0 6px 24px rgba(16,24,40,.06);
   }
 </style>
+
+<!-- Usa los scripts del sitio original (no pasa nada) -->
+<link rel="stylesheet" href="https://www.americanrecycling.com/hs-fs/hub/5160459/hub_generated/template_assets/66088781879/1678891515262/spark-arc/css/spark-style.min.css">
+<link rel="stylesheet" href="https://www.americanrecycling.com/hs-fs/hub/5160459/hub_generated/module_assets/74997734259/1678891494322/module_74997734259_Color_Mixer.min.css">
 </head>
+
 <body>
-  <div class="wrap">
-    <h1>Selector de color</h1>
-    <div class="sub">La mezcla de colores se realiza directamente en el sitio. Elige hasta <strong>3 colores</strong>. Cada piedra se colorea según el porcentaje.</div>
-
-    <div class="grid">
-      <!-- IZQUIERDA: UI -->
-      <div class="panel">
-        <div id="rows"></div>
-
-        <div class="controls">
-          <button id="add" class="btn btn-accent">Agregar color</button>
-          <span id="max3" class="muted">máx. <strong>3</strong> colores (sin repetir)</span>
-          <span class="pill">Total: <span id="total">100%</span></span>
-          <span id="warn" class="danger" style="display:none;">El total debe ser 100%</span>
-        </div>
-      </div>
-
-      <!-- DERECHA: CANVAS -->
-      <div class="panel">
-        <canvas id="c" width="1024" height="1024"></canvas>
-        <div class="dl">
-          <button id="download" class="btn btn-primary">Descargar PNG</button>
-        </div>
-      </div>
-    </div>
+  <div class="cmx-wrap">
+    <div id="color-mixer"></div>
   </div>
 
 <script>
-/* ===========================
-   CONFIGURACIÓN DE ACTIVOS
-   =========================== */
+window.colorMixerMixins = {
+  data: function () {
+    return {
+      colorGroups: [
+        {
+          group_label: "TPV",
+          colors: [
+            { color:{hex:"#A28F7A", css:"#A28F7A", color:"#A28F7A", opacity:100}, color_label:"Arena cálida – 01" },
+            { color:{hex:"#EEDC00", css:"#EEDC00", color:"#EEDC00", opacity:100}, color_label:"Amarillo brillante – 02" },
+            { color:{hex:"#A45A2A", css:"#A45A2A", color:"#A45A2A", opacity:100}, color_label:"Cobre tostado – 03" },
+            { color:{hex:"#E03C64", css:"#E03C64", color:"#E03C64", opacity:100}, color_label:"Rosa frambuesa – 04" },
+            { color:{hex:"#8A8D8F", css:"#8A8D8F", color:"#8A8D8F", opacity:100}, color_label:"Gris humo – 05" },
+            { color:{hex:"#C7B58D", css:"#C7B58D", color:"#C7B58D", opacity:100}, color_label:"Beige suave – 06" },
+            { color:{hex:"#B28B62", css:"#B28B62", color:"#B28B62", opacity:100}, color_label:"Marrón miel – 07" },
+            { color:{hex:"#A3523A", css:"#A3523A", color:"#A3523A", opacity:100}, color_label:"Terracota – 08" },
+            { color:{hex:"#FF6A13", css:"#FF6A13", color:"#FF6A13", opacity:100}, color_label:"Naranja intenso – 09" },
+            { color:{hex:"#A2A3A1", css:"#A2A3A1", color:"#A2A3A1", opacity:100}, color_label:"Gris acero – 10" },
+            { color:{hex:"#3A5F47", css:"#3A5F47", color:"#3A5F47", opacity:100}, color_label:"Verde bosque oscuro – 11" },
+            { color:{hex:"#7A8E49", css:"#7A8E49", color:"#7A8E49", opacity:100}, color_label:"Verde oliva – 12" },
+            { color:{hex:"#93328E", css:"#93328E", color:"#93328E", opacity:100}, color_label:"Púrpura profundo – 13" },
+            { color:{hex:"#D7D5CC", css:"#D7D5CC", color:"#D7D5CC", opacity:100}, color_label:"Gris claro – 14" },
+            { color:{hex:"#005A8C", css:"#005A8C", color:"#005A8C", opacity:100}, color_label:"Azul petróleo – 15" },
+            { color:{hex:"#008878", css:"#008878", color:"#008878", opacity:100}, color_label:"Verde jade – 16" },
+            { color:{hex:"#5F8F3D", css:"#5F8F3D", color:"#5F8F3D", opacity:100}, color_label:"Verde musgo – 17" },
+            { color:{hex:"#C5299B", css:"#C5299B", color:"#C5299B", opacity:100}, color_label:"Magenta intenso – 18" },
+            { color:{hex:"#00A9E0", css:"#00A9E0", color:"#00A9E0", opacity:100}, color_label:"Azul celeste – 19" },
+            { color:{hex:"#0077C8", css:"#0077C8", color:"#0077C8", opacity:100}, color_label:"Azul brillante – 20" },
+            { color:{hex:"#A45A2A", css:"#A45A2A", color:"#A45A2A", opacity:100}, color_label:"Marrón quemado – 21" },
+            { color:{hex:"#D84C57", css:"#D84C57", color:"#D84C57", opacity:100}, color_label:"Rojo coral – 22" },
+            { color:{hex:"#F6A3AE", css:"#F6A3AE", color:"#F6A3AE", opacity:100}, color_label:"Rosa pastel – 23" },
+            { color:{hex:"#CBA052", css:"#CBA052", color:"#CBA052", opacity:100}, color_label:"Dorado cálido – 24" },
+            { color:{hex:"#003F87", css:"#003F87", color:"#003F87", opacity:100}, color_label:"Azul marino – 25" },
+            { color:{hex:"#009473", css:"#009473", color:"#009473", opacity:100}, color_label:"Verde menta oscura – 26" },
+            { color:{hex:"#D6C54A", css:"#D6C54A", color:"#D6C54A", opacity:100}, color_label:"Amarillo mostaza – 27" },
+            { color:{hex:"#6C5840", css:"#6C5840", color:"#6C5840", opacity:100}, color_label:"Marrón chocolate – 28" },
+            { color:{hex:"#C49A6C", css:"#C49A6C", color:"#C49A6C", opacity:100}, color_label:"Arena dorada – 29" },
+            { color:{hex:"#0077C8", css:"#0077C8", color:"#0077C8", opacity:100}, color_label:"Azul medio – 30" },
+            { color:{hex:"#00966C", css:"#00966C", color:"#00966C", opacity:100}, color_label:"Verde esmeralda – 31" },
+            { color:{hex:"#A56EB5", css:"#A56EB5", color:"#A56EB5", opacity:100}, color_label:"Lila suave – 32" },
+            { color:{hex:"#A7A8AA", css:"#A7A8AA", color:"#A7A8AA", opacity:100}, color_label:"Gris perla – 33" },
+            { color:{hex:"#FF6A13", css:"#FF6A13", color:"#FF6A13", opacity:100}, color_label:"Naranja encendido – 34" },
+            { color:{hex:"#0077C8", css:"#0077C8", color:"#0077C8", opacity:100}, color_label:"Azul eléctrico – 35" }
+          ]
+        }
+      ],
 
-// Ruta esperada de assets en tu repo (cámbiala si usas otra):
-const ASSETS_BG = "assets/background.png"; // textura base (gris)
-const MASK_COUNT = 12;
-const MASKS = Array.from({length: MASK_COUNT}, (_,i)=> `assets/masks/mask-${String(i+1).padStart(2,'0')}.png`);
-
-/* ===========================
-   COLORES (35) — Nombre + HEX
-   =========================== */
-
-const COLORS = [
-  { name:"Arena cálida-01",       hex:"#A28F7A" },
-  { name:"Amarillo brillante-02", hex:"#EEDC00" },
-  { name:"Cobre tostado-03",      hex:"#A45A2A" },
-  { name:"Rosa frambuesa-04",     hex:"#E03C64" },
-  { name:"Gris humo-05",          hex:"#8A8D8F" },
-  { name:"Beige suave-06",        hex:"#C7B58D" },
-  { name:"Marrón miel-07",        hex:"#B28B62" },
-  { name:"Terracota-08",          hex:"#A3523A" },
-  { name:"Naranja intenso-09",    hex:"#FF6A13" },
-  { name:"Gris acero-10",         hex:"#A2A3A1" },
-  { name:"Verde bosque oscuro-11",hex:"#3A5F47" },
-  { name:"Verde oliva-12",        hex:"#7A8E49" },
-  { name:"Púrpura profundo-13",   hex:"#93328E" },
-  { name:"Gris claro-14",         hex:"#D7D5CC" },
-  { name:"Azul petróleo-15",      hex:"#005A8C" },
-  { name:"Verde jade-16",         hex:"#008878" },
-  { name:"Verde musgo-17",        hex:"#5F8F3D" },
-  { name:"Magenta intenso-18",    hex:"#C5299B" },
-  { name:"Azul celeste-19",       hex:"#00A9E0" },
-  { name:"Azul brillante-20",     hex:"#0077C8" },
-  { name:"Marrón quemado-21",     hex:"#A45A2A" },
-  { name:"Rojo coral-22",         hex:"#D84C57" },
-  { name:"Rosa pastel-23",        hex:"#F6A3AE" },
-  { name:"Dorado cálido-24",      hex:"#CBA052" },
-  { name:"Azul marino-25",        hex:"#003F87" },
-  { name:"Verde menta oscura-26", hex:"#009473" },
-  { name:"Amarillo mostaza-27",   hex:"#D6C54A" },
-  { name:"Marrón chocolate-28",   hex:"#6C5840" },
-  { name:"Arena dorada-29",       hex:"#C49A6C" },
-  { name:"Azul medio-30",         hex:"#0077C8" },
-  { name:"Verde esmeralda-31",    hex:"#00966C" },
-  { name:"Lila suave-32",         hex:"#A56EB5" },
-  { name:"Gris perla-33",         hex:"#A7A8AA" },
-  { name:"Naranja encendido-34",  hex:"#FF6A13" },
-  { name:"Azul eléctrico-35",     hex:"#0077C8" },
-];
-
-/* ===========================
-   ESTADO
-   =========================== */
-
-const MAX_ROWS = 3;
-const STEP = 5;        // pasos de 5%
-const CANVAS_SIZE = 1024;
-
-const state = {
-  rows: [
-    { color: COLORS[14].hex, label: COLORS[14].name, pct: 100 }, // Azul petróleo-15 por defecto
-  ],
-  images: { background: null, masks: [] },
-  ready: false
-};
-
-/* ===========================
-   UTILIDADES
-   =========================== */
-
-function hexToRgb(hex){
-  const h = hex.replace("#","");
-  const bigint = parseInt(h,16);
-  return { r:(bigint>>16)&255, g:(bigint>>8)&255, b:bigint&255 };
-}
-
-function clampStep(val){
-  // ajusta al múltiplo de STEP más cercano, 0..100
-  const v = Math.min(100, Math.max(0, val));
-  return Math.round(v/STEP)*STEP;
-}
-
-function normalizeTo100(rows){
-  if(rows.length===1){ rows[0].pct = 100; return; }
-  // Garantiza suma 100 manteniendo proporciones
-  let sum = rows.reduce((a,r)=>a+r.pct,0);
-  if(sum===100) return;
-  if(sum===0){
-    const even = Math.floor(100/rows.length/STEP)*STEP;
-    rows.forEach(r=>r.pct=even);
-    // reparte resto
-    let rest = 100 - rows.reduce((a,r)=>a+r.pct,0);
-    for(let i=0; rest>0; i=(i+1)%rows.length){ rows[i].pct+=STEP; rest-=STEP; }
-    return;
-  }
-  rows.forEach(r=> r.pct = clampStep(r.pct / sum * 100));
-  // corrige redondeo
-  let diff = 100 - rows.reduce((a,r)=>a+r.pct,0);
-  while(diff !== 0){
-    const sign = Math.sign(diff);
-    const idx = rows.reduce((m,i,ix)=> (sign>0 ? (i.pct<m.pct? i : m) : (i.pct>m.pct? i : m)), rows[0]);
-    const id = rows.indexOf(idx);
-    rows[id].pct = clampStep(rows[id].pct + sign*STEP);
-    diff = 100 - rows.reduce((a,r)=>a+r.pct,0);
+      layerImages: [
+        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-01.png",
+        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-02.png",
+        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-03.png",
+        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-04.png",
+        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-05.png",
+        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-06.png",
+        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-07.png",
+        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-08.png",
+        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-09.png",
+        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-10.png",
+        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-11.png",
+        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-12.png",
+        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-13.png",
+        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-14.png",
+        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-15.png",
+        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-16.png",
+        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-17.png",
+        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-18.png",
+        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-19.png",
+        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-20.png"
+      ],
+      background: "https://elisanameto-bot.github.io/elisa/assets/base/texture.png",
+    }
   }
 }
-
-function buildColorOptionsHTML(selectedHex){
-  return COLORS.map(c=>`<option value="${c.hex}" ${c.hex===selectedHex?'selected':''}>${c.name}</option>`).join("");
-}
-
-function makeRowHTML(row, index){
-  return `
-    <div class="row" data-index="${index}">
-      <div class="swatch" style="background:${row.color}"></div>
-      <input type="range" min="0" max="100" step="${STEP}" value="${row.pct}" aria-label="Porcentaje" />
-      <select>${buildColorOptionsHTML(row.color)}</select>
-      <button class="btn-remove" title="Quitar">–</button>
-    </div>
-  `;
-}
-
-function renderRows(){
-  const container = document.getElementById("rows");
-  container.innerHTML = state.rows.map((r,i)=>makeRowHTML(r,i)).join("");
-  // Totales
-  document.getElementById("total").textContent = state.rows.reduce((a,r)=>a+r.pct,0) + "%";
-  document.getElementById("warn").style.display = (state.rows.reduce((a,r)=>a+r.pct,0)===100) ? "none" : "";
-  // bloquea agregar si ya hay 3
-  document.getElementById("add").disabled = state.rows.length>=MAX_ROWS;
-}
-
-function attachRowHandlers(){
-  const container = document.getElementById("rows");
-  container.addEventListener("input",(e)=>{
-    const rowEl = e.target.closest(".row"); if(!rowEl) return;
-    const idx = +rowEl.dataset.index;
-    if(e.target.type==="range"){
-      state.rows[idx].pct = clampStep(+e.target.value);
-      normalizeTo100(state.rows);
-    }
-    if(e.target.tagName==="SELECT"){
-      const hex = e.target.value;
-      const col = COLORS.find(c=>c.hex===hex);
-      state.rows[idx].color = hex;
-      state.rows[idx].label = col? col.name : hex;
-    }
-    renderRows();
-    draw();
-  });
-  container.addEventListener("click",(e)=>{
-    if(e.target.classList.contains("btn-remove")){
-      const idx = +e.target.closest(".row").dataset.index;
-      state.rows.splice(idx,1);
-      if(state.rows.length===0){
-        // deja uno en 100%
-        const def = COLORS[14];
-        state.rows.push({ color:def.hex, label:def.name, pct:100 });
-      } else {
-        normalizeTo100(state.rows);
-      }
-      renderRows(); draw();
-    }
-  });
-}
-
-/* ===========================
-   CARGA DE IMÁGENES
-   =========================== */
-
-function loadImage(src){
-  return new Promise((resolve,reject)=>{
-    const img = new Image();
-    img.onload = ()=> resolve(img);
-    img.onerror = ()=> reject(new Error("No se pudo cargar: "+src));
-    img.src = src;
-  });
-}
-
-async function preload(){
-  try{
-    const background = await loadImage(ASSETS_BG);
-    const masks = [];
-    for(const m of MASKS){
-      try{
-        const im = await loadImage(m);
-        masks.push(im);
-      }catch(err){
-        console.warn("Máscara faltante:", m);
-      }
-    }
-    state.images.background = background;
-    state.images.masks = masks;
-    state.ready = true;
-
-    if(masks.length===0){
-      alert("Se cargó la textura base, pero no se encontraron máscaras.\n\nSube archivos en: assets/masks/mask-01.png … mask-12.png\n(Usaremos la base sin recortes hasta entonces).");
-    }
-  }catch(err){
-    alert("No se pudo cargar la textura base. Verifica 'assets/background.png'.");
-  }
-}
-
-/* ===========================
-   LÓGICA DE ASIGNACIÓN DE MÁSCARAS
-   =========================== */
-
-function assignMaskBuckets(rows){
-  // Reparte 12 “unidades” (máscaras) según porcentaje de cada color.
-  const totalUnits = MASK_COUNT;
-  // unidades iniciales por redondeo
-  let units = rows.map(r => ({...r, units: Math.round(r.pct/100 * totalUnits), frac: (r.pct/100 * totalUnits) % 1 }));
-  // corrige a 12
-  let sum = units.reduce((a,r)=>a+r.units,0);
-  if(sum !== totalUnits){
-    const need = totalUnits - sum;
-    // si falta, da a los de mayor “frac”; si sobra, quita a los de menor “frac”
-    const by = [...units].sort((a,b)=> need>0 ? (b.frac - a.frac) : (a.frac - b.frac));
-    for(let i=0;i<Math.abs(need);i++) by[i % by.length].units += Math.sign(need);
-  }
-  // genera array de índices de color según unidades
-  const colorIdxs = [];
-  units.forEach((r,ix)=>{ for(let i=0;i<r.units;i++) colorIdxs.push(ix); });
-  // por si por alguna razón quedó corto/largo
-  while(colorIdxs.length<totalUnits) colorIdxs.push(0);
-  colorIdxs.length = totalUnits;
-  return colorIdxs;
-}
-
-/* ===========================
-   DIBUJO
-   =========================== */
-
-function draw(){
-  const canvas = document.getElementById("c");
-  const ctx = canvas.getContext("2d");
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  if(!state.ready || !state.images.background){
-    // fondo gris clarito mientras carga
-    ctx.fillStyle="#e5e7eb"; ctx.fillRect(0,0,canvas.width,canvas.height);
-    return;
-  }
-
-  // 1) Dibuja textura base
-  ctx.globalCompositeOperation = "source-over";
-  ctx.drawImage(state.images.background, 0,0, canvas.width, canvas.height);
-
-  // 2) Si hay máscaras, asigna buckets y pinta cada bucket con MULTIPLY + recorte de máscara
-  if(state.images.masks.length>0){
-    const buckets = assignMaskBuckets(state.rows);
-    // offscreen para recortar cada máscara con color
-    const off = document.createElement("canvas");
-    off.width = CANVAS_SIZE; off.height = CANVAS_SIZE;
-    const o = off.getContext("2d");
-
-    for(let i=0; i<MASK_COUNT && i<state.images.masks.length; i++){
-      const row = state.rows[buckets[i]];
-      if(!row || row.pct===0) continue;
-
-      // Capa de color
-      o.clearRect(0,0,off.width,off.height);
-      o.globalCompositeOperation = "source-over";
-      o.fillStyle = row.color;
-      o.fillRect(0,0,off.width,off.height);
-
-      // Recorta por máscara
-      o.globalCompositeOperation = "destination-in";
-      o.drawImage(state.images.masks[i], 0,0, off.width, off.height);
-
-      // Mezcla en el lienzo con MULTIPLY para respetar volumen/sombras de la base
-      ctx.globalCompositeOperation = "multiply";
-      ctx.drawImage(off, 0,0, canvas.width, canvas.height);
-    }
-
-    // vuelve al flujo normal
-    ctx.globalCompositeOperation = "source-over";
-  }
-}
-
-/* ===========================
-   DESCARGA
-   =========================== */
-
-function setupDownload(){
-  const btn = document.getElementById("download");
-  btn.addEventListener("click",()=>{
-    // Asegura un render antes de exportar
-    draw();
-    const url = document.getElementById("c").toDataURL("image/png");
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "mezcla.png";
-    a.click();
-  });
-}
-
-/* ===========================
-   INICIO
-   =========================== */
-
-function setupUI(){
-  renderRows();
-  attachRowHandlers();
-
-  document.getElementById("add").addEventListener("click",()=>{
-    if(state.rows.length>=MAX_ROWS) return;
-    // evita duplicar color exacto
-    const next = COLORS.find(c=> !state.rows.some(r=>r.color===c.hex) ) || COLORS[0];
-    state.rows.push({ color: next.hex, label: next.name, pct: 0 });
-    normalizeTo100(state.rows);
-    renderRows(); draw();
-  });
-
-  // primer trazo al terminar preload
-  const iv = setInterval(()=>{
-    if(state.ready){ clearInterval(iv); draw(); }
-  },60);
-
-  setupDownload();
-}
-
-(async function(){
-  await preload();
-  setupUI();
-})();
 </script>
+
+<script src="https://www.americanrecycling.com/hs-fs/hub/5160459/hub_generated/template_assets/66088639041/1670606871020/spark-arc/js/vue-min.min.js"></script>
+<script src="https://www.americanrecycling.com/hs-fs/hub/5160459/hub_generated/template_assets/106623676215/1678891481611/spark-arc/js/vue-components/ColorMixerDropdown.min.js"></script>
+<script src="https://www.americanrecycling.com/hs-fs/hub/5160459/hub_generated/template_assets/74998075780/1685989584626/spark-arc/js/vue-components/ColorMixerInput.min.js"></script>
+<script src="https://www.americanrecycling.com/hs-fs/hub/5160459/hub_generated/template_assets/106623676214/1678891481606/spark-arc/js/vue-components/ColorMixerCanvas.min.js"></script>
+<script src="https://www.americanrecycling.com/hs-fs/hub/5160459/hub_generated/template_assets/78090459742/1670606874650/spark-arc/js/vue-components/HsForm.min.js"></script>
+<script src="https://www.americanrecycling.com/hs-fs/hub/5160459/hub_generated/template_assets/74998075777/1685989584544/spark-arc/js/vue-components/ColorMixer.min.js"></script>
+<script src="https://www.americanrecycling.com/hs-fs/hub/5160459/hub_generated/module_assets/74997734259/1678891493481/module_74997734259_Color_Mixer.min.js"></script>
+<script src="https://www.americanrecycling.com/hs-fs/hub/5160459/hub_generated/template_assets/66082594145/1670606874386/spark-arc/js/collapsible-text.min.js"></script>
 </body>
 </html>
