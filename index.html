@@ -2,167 +2,209 @@
 <html lang="es">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Selector de color</title>
 
 <style>
-  body{font-family:'Roboto',sans-serif;}
-
-  /* Etiquetas del dropdown */
-  .color-mixer-dropdown__label{
-    font-family:'Roboto',sans-serif;
-    font-size:19px;
+  :root{
+    --radius:14px; --card:#fff; --soft:#E6E9EF; --shadow:0 6px 24px rgba(16,24,40,.06);
+    --brand:#adbdb1; --txt:#101828; --muted:#6B7280; --chip:#eef4f2;
   }
-  .color-mixer-dropdown__toggle .color-mixer-dropdown__label:after{
-    height:15px!important;width:15px!important;
-  }
-
-  /* Quitar bullets heredados */
-  >ul li:before, ul li:before{display:none;}
-
-  .button--print{display:none;}
-
-  /* Igual que el original */
-  #hs_cos_wrapper_main_body-module-5 .color-mixer{--color-border-radius:0px;}
-
-  button--primary button--print{display:none;}
-  [type=button]:focus,[type=button]:hover,[type=submit]:focus,[type=submit]:hover,button:focus,button:hover{
-    color:black;background-color:#fff;text-decoration:none;
-  }
-
-  .button.button--secondary{
-    background-color:#fff!important;
-    background-image:none!important;
-    color:#657868!important;
-    border:none;
-    font-family:'Roboto',sans-serif;
-    font-size:17px!important;
-    font-style:normal!important;
-  }
-
-  .button{
-    background-color:#adbdb1!important;
-    border:var(--button-border) solid;
-    border-color:#adbdb1!important;
-    border-radius:0!important;
-    cursor:pointer;
-    font-family:'Roboto',sans-serif!important;
-    font-size:24px;
-    font-weight:500;
-    letter-spacing:var(--button-letter-spacing);
-    line-height:1;
-    padding:var(--button-padding);
-    position:relative;
-    text-align:center;
-    text-decoration:none;
-    text-transform:var(--button-text-transform);
-    -webkit-transition:.2s;transition:.2s;
-    white-space:normal;
-  }
-
-  .cmx-wrap{
-    max-width:1200px;
-    margin:28px auto;
-    padding:24px;
-    background:#fff;
-    border:1px solid #E6E9EF;
-    border-radius:14px;
-    box-shadow:0 6px 24px rgba(16,24,40,.06);
-  }
+  html,body{margin:0;padding:0;background:#F7F8FA;color:var(--txt);font-family:Roboto,system-ui,-apple-system,Segoe UI,Inter,Arial,sans-serif}
+  .wrap{max-width:1200px;margin:28px auto;padding:24px;background:var(--card);border:1px solid var(--soft);border-radius:var(--radius);box-shadow:var(--shadow)}
+  h1{font-size:34px;margin:0 0 12px}
+  p.sub{margin:0 0 20px;color:var(--muted)}
+  .grid{display:grid;gap:24px;grid-template-columns:1.15fr 1fr}
+  .panel{background:#fff;border:1px solid var(--soft);border-radius:var(--radius);padding:18px}
+  .row{display:grid;grid-template-columns:1fr auto;gap:12px;margin-bottom:16px}
+  .ctrl{display:grid;grid-template-columns:44px 1fr 220px 44px;gap:12px;align-items:center;background:#fff;border:1px solid var(--soft);border-radius:12px;padding:14px}
+  .sw{width:36px;height:36px;border-radius:999px;border:1px solid #D1D5DB;box-shadow:inset 0 0 0 2px rgba(0,0,0,.04)}
+  input[type=range]{width:100%}
+  select{height:40px;border:1px solid #D1D5DB;border-radius:10px;padding:0 12px;background:#fff;font-size:15px}
+  button, .btn{height:42px;border-radius:10px;border:1px solid #D1D5DB;background:var(--chip);padding:0 14px;font-weight:600;cursor:pointer}
+  .muted{color:var(--muted)}
+  .pill{display:inline-block;background:#ECFDF3;color:#065F46;border:1px solid #A7F3D0;border-radius:999px;padding:6px 10px;font-weight:600}
+  canvas{width:100%;aspect-ratio:1/1;border-radius:18px;background:#F1F3F6;border:1px solid var(--soft)}
+  .footer-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 </style>
-
-<!-- Usa los scripts del sitio original (no pasa nada) -->
-<link rel="stylesheet" href="https://www.americanrecycling.com/hs-fs/hub/5160459/hub_generated/template_assets/66088781879/1678891515262/spark-arc/css/spark-style.min.css">
-<link rel="stylesheet" href="https://www.americanrecycling.com/hs-fs/hub/5160459/hub_generated/module_assets/74997734259/1678891494322/module_74997734259_Color_Mixer.min.css">
 </head>
-
 <body>
-  <div class="cmx-wrap">
-    <div id="color-mixer"></div>
+<div class="wrap">
+  <h1>Selector de color</h1>
+  <p class="sub">La mezcla de colores se realiza directamente en el sitio. Elige hasta <strong>3 colores</strong>. Cada piedra se colorea según el porcentaje.</p>
+
+  <div class="grid">
+    <!-- LADO IZQUIERDO (controles) -->
+    <div class="panel" id="controls">
+      <div id="colorRows"></div>
+      <div class="footer-row">
+        <button id="addBtn">Agregar color</button>
+        <span class="muted">máx. <strong>3</strong> colores (sin repetir)</span>
+        <span class="pill">Total: <span id="totalPct">100%</span></span>
+      </div>
+    </div>
+
+    <!-- LADO DERECHO (preview) -->
+    <div class="panel">
+      <canvas id="preview" width="1000" height="1000"></canvas>
+    </div>
   </div>
+</div>
 
 <script>
-window.colorMixerMixins = {
-  data: function () {
-    return {
-      colorGroups: [
-        {
-          group_label: "TPV",
-          colors: [
-            { color:{hex:"#A28F7A", css:"#A28F7A", color:"#A28F7A", opacity:100}, color_label:"Arena cálida – 01" },
-            { color:{hex:"#EEDC00", css:"#EEDC00", color:"#EEDC00", opacity:100}, color_label:"Amarillo brillante – 02" },
-            { color:{hex:"#A45A2A", css:"#A45A2A", color:"#A45A2A", opacity:100}, color_label:"Cobre tostado – 03" },
-            { color:{hex:"#E03C64", css:"#E03C64", color:"#E03C64", opacity:100}, color_label:"Rosa frambuesa – 04" },
-            { color:{hex:"#8A8D8F", css:"#8A8D8F", color:"#8A8D8F", opacity:100}, color_label:"Gris humo – 05" },
-            { color:{hex:"#C7B58D", css:"#C7B58D", color:"#C7B58D", opacity:100}, color_label:"Beige suave – 06" },
-            { color:{hex:"#B28B62", css:"#B28B62", color:"#B28B62", opacity:100}, color_label:"Marrón miel – 07" },
-            { color:{hex:"#A3523A", css:"#A3523A", color:"#A3523A", opacity:100}, color_label:"Terracota – 08" },
-            { color:{hex:"#FF6A13", css:"#FF6A13", color:"#FF6A13", opacity:100}, color_label:"Naranja intenso – 09" },
-            { color:{hex:"#A2A3A1", css:"#A2A3A1", color:"#A2A3A1", opacity:100}, color_label:"Gris acero – 10" },
-            { color:{hex:"#3A5F47", css:"#3A5F47", color:"#3A5F47", opacity:100}, color_label:"Verde bosque oscuro – 11" },
-            { color:{hex:"#7A8E49", css:"#7A8E49", color:"#7A8E49", opacity:100}, color_label:"Verde oliva – 12" },
-            { color:{hex:"#93328E", css:"#93328E", color:"#93328E", opacity:100}, color_label:"Púrpura profundo – 13" },
-            { color:{hex:"#D7D5CC", css:"#D7D5CC", color:"#D7D5CC", opacity:100}, color_label:"Gris claro – 14" },
-            { color:{hex:"#005A8C", css:"#005A8C", color:"#005A8C", opacity:100}, color_label:"Azul petróleo – 15" },
-            { color:{hex:"#008878", css:"#008878", color:"#008878", opacity:100}, color_label:"Verde jade – 16" },
-            { color:{hex:"#5F8F3D", css:"#5F8F3D", color:"#5F8F3D", opacity:100}, color_label:"Verde musgo – 17" },
-            { color:{hex:"#C5299B", css:"#C5299B", color:"#C5299B", opacity:100}, color_label:"Magenta intenso – 18" },
-            { color:{hex:"#00A9E0", css:"#00A9E0", color:"#00A9E0", opacity:100}, color_label:"Azul celeste – 19" },
-            { color:{hex:"#0077C8", css:"#0077C8", color:"#0077C8", opacity:100}, color_label:"Azul brillante – 20" },
-            { color:{hex:"#A45A2A", css:"#A45A2A", color:"#A45A2A", opacity:100}, color_label:"Marrón quemado – 21" },
-            { color:{hex:"#D84C57", css:"#D84C57", color:"#D84C57", opacity:100}, color_label:"Rojo coral – 22" },
-            { color:{hex:"#F6A3AE", css:"#F6A3AE", color:"#F6A3AE", opacity:100}, color_label:"Rosa pastel – 23" },
-            { color:{hex:"#CBA052", css:"#CBA052", color:"#CBA052", opacity:100}, color_label:"Dorado cálido – 24" },
-            { color:{hex:"#003F87", css:"#003F87", color:"#003F87", opacity:100}, color_label:"Azul marino – 25" },
-            { color:{hex:"#009473", css:"#009473", color:"#009473", opacity:100}, color_label:"Verde menta oscura – 26" },
-            { color:{hex:"#D6C54A", css:"#D6C54A", color:"#D6C54A", opacity:100}, color_label:"Amarillo mostaza – 27" },
-            { color:{hex:"#6C5840", css:"#6C5840", color:"#6C5840", opacity:100}, color_label:"Marrón chocolate – 28" },
-            { color:{hex:"#C49A6C", css:"#C49A6C", color:"#C49A6C", opacity:100}, color_label:"Arena dorada – 29" },
-            { color:{hex:"#0077C8", css:"#0077C8", color:"#0077C8", opacity:100}, color_label:"Azul medio – 30" },
-            { color:{hex:"#00966C", css:"#00966C", color:"#00966C", opacity:100}, color_label:"Verde esmeralda – 31" },
-            { color:{hex:"#A56EB5", css:"#A56EB5", color:"#A56EB5", opacity:100}, color_label:"Lila suave – 32" },
-            { color:{hex:"#A7A8AA", css:"#A7A8AA", color:"#A7A8AA", opacity:100}, color_label:"Gris perla – 33" },
-            { color:{hex:"#FF6A13", css:"#FF6A13", color:"#FF6A13", opacity:100}, color_label:"Naranja encendido – 34" },
-            { color:{hex:"#0077C8", css:"#0077C8", color:"#0077C8", opacity:100}, color_label:"Azul eléctrico – 35" }
-          ]
-        }
-      ],
+/* ======= CONFIGURA AQUÍ SOLO ESTA BASE ======= */
+const ASSET_BASE = "https://raw.githubusercontent.com/TU_USUARIO/TU_REPO/main/assets/"; // 👈 CAMBIA ESTO
+const BACKGROUND_URL = ASSET_BASE + "base.png";      // tu textura gris
+const MASK_COUNT = 20;                                // 20 máscaras
+const MASK_URLS = Array.from({length: MASK_COUNT}, (_,i)=> ASSET_BASE + `mask-${String(i+1).padStart(2,"0")}.png`);
+const MAX_COLORS = 3;
 
-      layerImages: [
-        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-01.png",
-        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-02.png",
-        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-03.png",
-        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-04.png",
-        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-05.png",
-        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-06.png",
-        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-07.png",
-        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-08.png",
-        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-09.png",
-        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-10.png",
-        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-11.png",
-        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-12.png",
-        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-13.png",
-        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-14.png",
-        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-15.png",
-        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-16.png",
-        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-17.png",
-        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-18.png",
-        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-19.png",
-        "https://elisanameto-bot.github.io/elisa/assets/masks/mask-20.png"
-      ],
-      background: "https://elisanameto-bot.github.io/elisa/assets/base/texture.png",
-    }
-  }
+/* Tus 35 colores */
+const COLORS = [
+  {name:"Arena cálida – 01", hex:"#A28F7A"},
+  {name:"Amarillo brillante – 02", hex:"#EEDC00"},
+  {name:"Cobre tostado – 03", hex:"#A45A2A"},
+  {name:"Rosa frambuesa – 04", hex:"#E03C64"},
+  {name:"Gris humo – 05", hex:"#8A8D8F"},
+  {name:"Beige suave – 06", hex:"#C7B58D"},
+  {name:"Marrón miel – 07", hex:"#B28B62"},
+  {name:"Terracota – 08", hex:"#A3523A"},
+  {name:"Naranja intenso – 09", hex:"#FF6A13"},
+  {name:"Gris acero – 10", hex:"#A2A3A1"},
+  {name:"Verde bosque oscuro – 11", hex:"#3A5F47"},
+  {name:"Verde oliva – 12", hex:"#7A8E49"},
+  {name:"Púrpura profundo – 13", hex:"#93328E"},
+  {name:"Gris claro – 14", hex:"#D7D5CC"},
+  {name:"Azul petróleo – 15", hex:"#005A8C"},
+  {name:"Verde jade – 16", hex:"#008878"},
+  {name:"Verde musgo – 17", hex:"#5F8F3D"},
+  {name:"Magenta intenso – 18", hex:"#C5299B"},
+  {name:"Azul celeste – 19", hex:"#00A9E0"},
+  {name:"Azul brillante – 20", hex:"#0077C8"},
+  {name:"Marrón quemado – 21", hex:"#A45A2A"},
+  {name:"Rojo coral – 22", hex:"#D84C57"},
+  {name:"Rosa pastel – 23", hex:"#F6A3AE"},
+  {name:"Dorado cálido – 24", hex:"#CBA052"},
+  {name:"Azul marino – 25", hex:"#003F87"},
+  {name:"Verde menta oscura – 26", hex:"#009473"},
+  {name:"Amarillo mostaza – 27", hex:"#D6C54A"},
+  {name:"Marrón chocolate – 28", hex:"#6C5840"},
+  {name:"Arena dorada – 29", hex:"#C49A6C"},
+  {name:"Azul medio – 30", hex:"#0077C8"},
+  {name:"Verde esmeralda – 31", hex:"#00966C"},
+  {name:"Lila suave – 32", hex:"#A56EB5"},
+  {name:"Gris perla – 33", hex:"#A7A8AA"},
+  {name:"Naranja encendido – 34", hex:"#FF6A13"},
+  {name:"Azul eléctrico – 35", hex:"#0077C8"},
+];
+
+/* ======= LÓGICA (no necesitas tocarla) ======= */
+const canvas = document.getElementById("preview");
+const ctx = canvas.getContext("2d");
+const state = {
+  layers: [ {colorIndex: 14, pct: 100} ], // arranca Azul petróleo – 15 al 100%
+  images: { base: null, masks: [] }
+};
+
+function h2rgb(hex){
+  hex = hex.replace("#",""); const bigint = parseInt(hex,16);
+  return [(bigint>>16)&255, (bigint>>8)&255, bigint&255];
 }
-</script>
+function draw(){
+  if(!state.images.base || state.images.masks.length !== MASK_COUNT){ 
+    // fondo de espera
+    ctx.fillStyle = "#ECEFF3"; ctx.fillRect(0,0,canvas.width,canvas.height);
+    return;
+  }
+  // 1) fondo
+  ctx.drawImage(state.images.base, 0, 0, canvas.width, canvas.height);
+  // 2) mezcla por máscara “en franjas”
+  const total = Math.max(1, state.layers.reduce((s,l)=>s + l.pct, 0));
+  let start = 0;
+  state.layers.forEach((l, idx)=>{
+    const frac = l.pct/total;
+    const maskIdx = Math.min(MASK_COUNT-1, Math.floor(frac*(MASK_COUNT))); // reparte máscaras según % (look de “piedrita”)
+    const color = COLORS[l.colorIndex].hex;
+    // pinta con N máscaras
+    for(let i = 0; i <= maskIdx; i++){
+      ctx.save();
+      ctx.globalCompositeOperation = "source-over";
+      ctx.drawImage(state.images.masks[i], 0, 0, canvas.width, canvas.height); // máscara en blanco/negro
+      ctx.globalCompositeOperation = "source-in"; // recortamos la tinta al blanco
+      ctx.fillStyle = color;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.restore();
+    }
+    start += frac;
+  });
+}
 
-<script src="https://www.americanrecycling.com/hs-fs/hub/5160459/hub_generated/template_assets/66088639041/1670606871020/spark-arc/js/vue-min.min.js"></script>
-<script src="https://www.americanrecycling.com/hs-fs/hub/5160459/hub_generated/template_assets/106623676215/1678891481611/spark-arc/js/vue-components/ColorMixerDropdown.min.js"></script>
-<script src="https://www.americanrecycling.com/hs-fs/hub/5160459/hub_generated/template_assets/74998075780/1685989584626/spark-arc/js/vue-components/ColorMixerInput.min.js"></script>
-<script src="https://www.americanrecycling.com/hs-fs/hub/5160459/hub_generated/template_assets/106623676214/1678891481606/spark-arc/js/vue-components/ColorMixerCanvas.min.js"></script>
-<script src="https://www.americanrecycling.com/hs-fs/hub/5160459/hub_generated/template_assets/78090459742/1670606874650/spark-arc/js/vue-components/HsForm.min.js"></script>
-<script src="https://www.americanrecycling.com/hs-fs/hub/5160459/hub_generated/template_assets/74998075777/1685989584544/spark-arc/js/vue-components/ColorMixer.min.js"></script>
-<script src="https://www.americanrecycling.com/hs-fs/hub/5160459/hub_generated/module_assets/74997734259/1678891493481/module_74997734259_Color_Mixer.min.js"></script>
-<script src="https://www.americanrecycling.com/hs-fs/hub/5160459/hub_generated/template_assets/66082594145/1670606874386/spark-arc/js/collapsible-text.min.js"></script>
+function loadImages(){
+  // base
+  const base = new Image(); base.crossOrigin = "anonymous"; base.src = BACKGROUND_URL;
+  base.onload = ()=>{ state.images.base = base; draw(); };
+  // masks
+  Promise.all(MASK_URLS.map(u => new Promise(res=>{
+    const im = new Image(); im.crossOrigin="anonymous"; im.src = u;
+    im.onload = ()=> res(im);
+  }))).then(list=>{ state.images.masks = list; draw(); });
+}
+
+function rowTemplate(i, layer){
+  const c = COLORS[layer.colorIndex];
+  return `
+    <div class="ctrl" data-i="${i}">
+      <div class="sw" style="background:${c.hex}"></div>
+      <input type="range" min="0" max="100" step="1" value="${layer.pct}" />
+      <select>
+        ${COLORS.map((col,idx)=>`<option value="${idx}" ${idx===layer.colorIndex?'selected':''}>${col.name}</option>`).join("")}
+      </select>
+      <button class="btn del">−</button>
+    </div>
+  `;
+}
+
+function renderControls(){
+  const cont = document.getElementById("colorRows");
+  cont.innerHTML = state.layers.map((l,i)=>rowTemplate(i,l)).join("");
+  const total = state.layers.reduce((s,l)=>s+l.pct,0);
+  document.getElementById("totalPct").textContent = `${total}%`;
+
+  cont.querySelectorAll(".ctrl").forEach(ctrl=>{
+    const i = +ctrl.dataset.i;
+    const sw = ctrl.querySelector(".sw");
+    const range = ctrl.querySelector("input[type=range]");
+    const select = ctrl.querySelector("select");
+    const del = ctrl.querySelector(".del");
+
+    range.oninput = ()=>{
+      state.layers[i].pct = +range.value;
+      document.getElementById("totalPct").textContent = `${state.layers.reduce((s,l)=>s+l.pct,0)}%`;
+      draw();
+    };
+    select.onchange = ()=>{
+      state.layers[i].colorIndex = +select.value;
+      sw.style.background = COLORS[state.layers[i].colorIndex].hex;
+      draw();
+    };
+    del.onclick = ()=>{
+      state.layers.splice(i,1);
+      renderControls(); draw();
+    };
+  });
+}
+
+document.getElementById("addBtn").onclick = ()=>{
+  if(state.layers.length >= MAX_COLORS) return;
+  // evita duplicados: busca el primer color no usado
+  const used = new Set(state.layers.map(l=>l.colorIndex));
+  const next = COLORS.findIndex((_,idx)=>!used.has(idx));
+  state.layers.push({ colorIndex: next===-1?0:next, pct: 33 });
+  renderControls(); draw();
+};
+
+loadImages();
+renderControls();
+</script>
 </body>
 </html>
