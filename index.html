@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Selector de color</title>
+<style>
+  :root{
+    --ui-bg:#f7f9fb;
+    --card:#ffffff;
+    --ink:#1f2937;
+    --muted:#6b7280;
+    --brand:#2e7d62;
+    --ring:#d1e7dd;
+    --border:#e5e7eb;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Inter, Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+    color:var(--ink);
+    background:var(--ui-bg);
+  }
+  .wrap{
+    max-width:1200px;
+    margin:40px auto;
+    padding:24px;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:16px;
+    box-shadow: 0 6px 20px rgba(16,24,40,.06);
+  }
+  h1{
+    margin:0 0 8px;
+    font-size: clamp(26px, 2.4vw, 34px);
+    line-height:1.1;
+  }
+  .sub{
+    color:var(--muted);
+    margin-bottom:24px;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:28px;
+  }
+  @media (max-width: 980px){
+    .grid{grid-template-columns: 1fr}
+  }
+  .panel{
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:16px;
+    background:#fff;
+  }
+  .row{
+    display:grid;
+    grid-template-columns: 42px 1fr 180px 48px;
+    gap:12px;
+    align-items:center;
+    padding:12px;
+    border:1px solid var(--border);
+    border-radius:12px;
+    margin-bottom:12px;
+  }
+  .swatch{
+    width:32px;height:32px;border-radius:99px;border:1px solid #cbd5e1;
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,.5);
+  }
+  input[type="range"]{
+    width:100%;
+    accent-color: var(--brand);
+  }
+  select{
+    width:100%;
+    height:40px;
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:0 10px;
+    background:#fff;
+    font-size:14px;
+  }
+  .btn{
+    height:40px;
+    border:1px solid var(--border);
+    background:#fff;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:600;
+  }
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn-remove{
+    width:40px;height:40px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;
+    font-size:18px;line-height:0;
+  }
+  .controls{
+    display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-top:10px;
+  }
+  .pill{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:8px 10px;border-radius:99px;background:#f3faf6;border:1px solid var(--ring);color:#0f5132;
+    font-weight:600;font-size:13px;
+  }
+  .muted{color:var(--muted)}
+  .danger{color:#b42318}
+  canvas{
+    width:100%; height:auto; display:block;
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:14px;
+  }
+  .dl{
+    display:flex;justify-content:center;margin-top:16px
+  }
+  .btn-primary{
+    border:1px solid #0f766e;
+    background:#15803d1a;
+    color:#0f766e;
+  }
+  .btn-accent{
+    border:1px solid #2e7d62;
+    background:#2e7d6214;
+    color:#205746;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Selector de color</h1>
+    <div class="sub">La mezcla de colores se realiza directamente en el sitio. Elige hasta <strong>3 colores</strong>. Cada piedra se colorea según el porcentaje.</div>
+
+    <div class="grid">
+      <!-- IZQUIERDA: UI -->
+      <div class="panel">
+        <div id="rows"></div>
+
+        <div class="controls">
+          <button id="add" class="btn btn-accent">Agregar color</button>
+          <span id="max3" class="muted">máx. <strong>3</strong> colores (sin repetir)</span>
+          <span class="pill">Total: <span id="total">100%</span></span>
+          <span id="warn" class="danger" style="display:none;">El total debe ser 100%</span>
+        </div>
+      </div>
+
+      <!-- DERECHA: CANVAS -->
+      <div class="panel">
+        <canvas id="c" width="1024" height="1024"></canvas>
+        <div class="dl">
+          <button id="download" class="btn btn-primary">Descargar PNG</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ===========================
+   CONFIGURACIÓN DE ACTIVOS
+   =========================== */
+
+// Ruta esperada de assets en tu repo (cámbiala si usas otra):
+const ASSETS_BG = "assets/background.png"; // textura base (gris)
+const MASK_COUNT = 12;
+const MASKS = Array.from({length: MASK_COUNT}, (_,i)=> `assets/masks/mask-${String(i+1).padStart(2,'0')}.png`);
+
+/* ===========================
+   COLORES (35) — Nombre + HEX
+   =========================== */
+
+const COLORS = [
+  { name:"Arena cálida-01",       hex:"#A28F7A" },
+  { name:"Amarillo brillante-02", hex:"#EEDC00" },
+  { name:"Cobre tostado-03",      hex:"#A45A2A" },
+  { name:"Rosa frambuesa-04",     hex:"#E03C64" },
+  { name:"Gris humo-05",          hex:"#8A8D8F" },
+  { name:"Beige suave-06",        hex:"#C7B58D" },
+  { name:"Marrón miel-07",        hex:"#B28B62" },
+  { name:"Terracota-08",          hex:"#A3523A" },
+  { name:"Naranja intenso-09",    hex:"#FF6A13" },
+  { name:"Gris acero-10",         hex:"#A2A3A1" },
+  { name:"Verde bosque oscuro-11",hex:"#3A5F47" },
+  { name:"Verde oliva-12",        hex:"#7A8E49" },
+  { name:"Púrpura profundo-13",   hex:"#93328E" },
+  { name:"Gris claro-14",         hex:"#D7D5CC" },
+  { name:"Azul petróleo-15",      hex:"#005A8C" },
+  { name:"Verde jade-16",         hex:"#008878" },
+  { name:"Verde musgo-17",        hex:"#5F8F3D" },
+  { name:"Magenta intenso-18",    hex:"#C5299B" },
+  { name:"Azul celeste-19",       hex:"#00A9E0" },
+  { name:"Azul brillante-20",     hex:"#0077C8" },
+  { name:"Marrón quemado-21",     hex:"#A45A2A" },
+  { name:"Rojo coral-22",         hex:"#D84C57" },
+  { name:"Rosa pastel-23",        hex:"#F6A3AE" },
+  { name:"Dorado cálido-24",      hex:"#CBA052" },
+  { name:"Azul marino-25",        hex:"#003F87" },
+  { name:"Verde menta oscura-26", hex:"#009473" },
+  { name:"Amarillo mostaza-27",   hex:"#D6C54A" },
+  { name:"Marrón chocolate-28",   hex:"#6C5840" },
+  { name:"Arena dorada-29",       hex:"#C49A6C" },
+  { name:"Azul medio-30",         hex:"#0077C8" },
+  { name:"Verde esmeralda-31",    hex:"#00966C" },
+  { name:"Lila suave-32",         hex:"#A56EB5" },
+  { name:"Gris perla-33",         hex:"#A7A8AA" },
+  { name:"Naranja encendido-34",  hex:"#FF6A13" },
+  { name:"Azul eléctrico-35",     hex:"#0077C8" },
+];
+
+/* ===========================
+   ESTADO
+   =========================== */
+
+const MAX_ROWS = 3;
+const STEP = 5;        // pasos de 5%
+const CANVAS_SIZE = 1024;
+
+const state = {
+  rows: [
+    { color: COLORS[14].hex, label: COLORS[14].name, pct: 100 }, // Azul petróleo-15 por defecto
+  ],
+  images: { background: null, masks: [] },
+  ready: false
+};
+
+/* ===========================
+   UTILIDADES
+   =========================== */
+
+function hexToRgb(hex){
+  const h = hex.replace("#","");
+  const bigint = parseInt(h,16);
+  return { r:(bigint>>16)&255, g:(bigint>>8)&255, b:bigint&255 };
+}
+
+function clampStep(val){
+  // ajusta al múltiplo de STEP más cercano, 0..100
+  const v = Math.min(100, Math.max(0, val));
+  return Math.round(v/STEP)*STEP;
+}
+
+function normalizeTo100(rows){
+  if(rows.length===1){ rows[0].pct = 100; return; }
+  // Garantiza suma 100 manteniendo proporciones
+  let sum = rows.reduce((a,r)=>a+r.pct,0);
+  if(sum===100) return;
+  if(sum===0){
+    const even = Math.floor(100/rows.length/STEP)*STEP;
+    rows.forEach(r=>r.pct=even);
+    // reparte resto
+    let rest = 100 - rows.reduce((a,r)=>a+r.pct,0);
+    for(let i=0; rest>0; i=(i+1)%rows.length){ rows[i].pct+=STEP; rest-=STEP; }
+    return;
+  }
+  rows.forEach(r=> r.pct = clampStep(r.pct / sum * 100));
+  // corrige redondeo
+  let diff = 100 - rows.reduce((a,r)=>a+r.pct,0);
+  while(diff !== 0){
+    const sign = Math.sign(diff);
+    const idx = rows.reduce((m,i,ix)=> (sign>0 ? (i.pct<m.pct? i : m) : (i.pct>m.pct? i : m)), rows[0]);
+    const id = rows.indexOf(idx);
+    rows[id].pct = clampStep(rows[id].pct + sign*STEP);
+    diff = 100 - rows.reduce((a,r)=>a+r.pct,0);
+  }
+}
+
+function buildColorOptionsHTML(selectedHex){
+  return COLORS.map(c=>`<option value="${c.hex}" ${c.hex===selectedHex?'selected':''}>${c.name}</option>`).join("");
+}
+
+function makeRowHTML(row, index){
+  return `
+    <div class="row" data-index="${index}">
+      <div class="swatch" style="background:${row.color}"></div>
+      <input type="range" min="0" max="100" step="${STEP}" value="${row.pct}" aria-label="Porcentaje" />
+      <select>${buildColorOptionsHTML(row.color)}</select>
+      <button class="btn-remove" title="Quitar">–</button>
+    </div>
+  `;
+}
+
+function renderRows(){
+  const container = document.getElementById("rows");
+  container.innerHTML = state.rows.map((r,i)=>makeRowHTML(r,i)).join("");
+  // Totales
+  document.getElementById("total").textContent = state.rows.reduce((a,r)=>a+r.pct,0) + "%";
+  document.getElementById("warn").style.display = (state.rows.reduce((a,r)=>a+r.pct,0)===100) ? "none" : "";
+  // bloquea agregar si ya hay 3
+  document.getElementById("add").disabled = state.rows.length>=MAX_ROWS;
+}
+
+function attachRowHandlers(){
+  const container = document.getElementById("rows");
+  container.addEventListener("input",(e)=>{
+    const rowEl = e.target.closest(".row"); if(!rowEl) return;
+    const idx = +rowEl.dataset.index;
+    if(e.target.type==="range"){
+      state.rows[idx].pct = clampStep(+e.target.value);
+      normalizeTo100(state.rows);
+    }
+    if(e.target.tagName==="SELECT"){
+      const hex = e.target.value;
+      const col = COLORS.find(c=>c.hex===hex);
+      state.rows[idx].color = hex;
+      state.rows[idx].label = col? col.name : hex;
+    }
+    renderRows();
+    draw();
+  });
+  container.addEventListener("click",(e)=>{
+    if(e.target.classList.contains("btn-remove")){
+      const idx = +e.target.closest(".row").dataset.index;
+      state.rows.splice(idx,1);
+      if(state.rows.length===0){
+        // deja uno en 100%
+        const def = COLORS[14];
+        state.rows.push({ color:def.hex, label:def.name, pct:100 });
+      } else {
+        normalizeTo100(state.rows);
+      }
+      renderRows(); draw();
+    }
+  });
+}
+
+/* ===========================
+   CARGA DE IMÁGENES
+   =========================== */
+
+function loadImage(src){
+  return new Promise((resolve,reject)=>{
+    const img = new Image();
+    img.onload = ()=> resolve(img);
+    img.onerror = ()=> reject(new Error("No se pudo cargar: "+src));
+    img.src = src;
+  });
+}
+
+async function preload(){
+  try{
+    const background = await loadImage(ASSETS_BG);
+    const masks = [];
+    for(const m of MASKS){
+      try{
+        const im = await loadImage(m);
+        masks.push(im);
+      }catch(err){
+        console.warn("Máscara faltante:", m);
+      }
+    }
+    state.images.background = background;
+    state.images.masks = masks;
+    state.ready = true;
+
+    if(masks.length===0){
+      alert("Se cargó la textura base, pero no se encontraron máscaras.\n\nSube archivos en: assets/masks/mask-01.png … mask-12.png\n(Usaremos la base sin recortes hasta entonces).");
+    }
+  }catch(err){
+    alert("No se pudo cargar la textura base. Verifica 'assets/background.png'.");
+  }
+}
+
+/* ===========================
+   LÓGICA DE ASIGNACIÓN DE MÁSCARAS
+   =========================== */
+
+function assignMaskBuckets(rows){
+  // Reparte 12 “unidades” (máscaras) según porcentaje de cada color.
+  const totalUnits = MASK_COUNT;
+  // unidades iniciales por redondeo
+  let units = rows.map(r => ({...r, units: Math.round(r.pct/100 * totalUnits), frac: (r.pct/100 * totalUnits) % 1 }));
+  // corrige a 12
+  let sum = units.reduce((a,r)=>a+r.units,0);
+  if(sum !== totalUnits){
+    const need = totalUnits - sum;
+    // si falta, da a los de mayor “frac”; si sobra, quita a los de menor “frac”
+    const by = [...units].sort((a,b)=> need>0 ? (b.frac - a.frac) : (a.frac - b.frac));
+    for(let i=0;i<Math.abs(need);i++) by[i % by.length].units += Math.sign(need);
+  }
+  // genera array de índices de color según unidades
+  const colorIdxs = [];
+  units.forEach((r,ix)=>{ for(let i=0;i<r.units;i++) colorIdxs.push(ix); });
+  // por si por alguna razón quedó corto/largo
+  while(colorIdxs.length<totalUnits) colorIdxs.push(0);
+  colorIdxs.length = totalUnits;
+  return colorIdxs;
+}
+
+/* ===========================
+   DIBUJO
+   =========================== */
+
+function draw(){
+  const canvas = document.getElementById("c");
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  if(!state.ready || !state.images.background){
+    // fondo gris clarito mientras carga
+    ctx.fillStyle="#e5e7eb"; ctx.fillRect(0,0,canvas.width,canvas.height);
+    return;
+  }
+
+  // 1) Dibuja textura base
+  ctx.globalCompositeOperation = "source-over";
+  ctx.drawImage(state.images.background, 0,0, canvas.width, canvas.height);
+
+  // 2) Si hay máscaras, asigna buckets y pinta cada bucket con MULTIPLY + recorte de máscara
+  if(state.images.masks.length>0){
+    const buckets = assignMaskBuckets(state.rows);
+    // offscreen para recortar cada máscara con color
+    const off = document.createElement("canvas");
+    off.width = CANVAS_SIZE; off.height = CANVAS_SIZE;
+    const o = off.getContext("2d");
+
+    for(let i=0; i<MASK_COUNT && i<state.images.masks.length; i++){
+      const row = state.rows[buckets[i]];
+      if(!row || row.pct===0) continue;
+
+      // Capa de color
+      o.clearRect(0,0,off.width,off.height);
+      o.globalCompositeOperation = "source-over";
+      o.fillStyle = row.color;
+      o.fillRect(0,0,off.width,off.height);
+
+      // Recorta por máscara
+      o.globalCompositeOperation = "destination-in";
+      o.drawImage(state.images.masks[i], 0,0, off.width, off.height);
+
+      // Mezcla en el lienzo con MULTIPLY para respetar volumen/sombras de la base
+      ctx.globalCompositeOperation = "multiply";
+      ctx.drawImage(off, 0,0, canvas.width, canvas.height);
+    }
+
+    // vuelve al flujo normal
+    ctx.globalCompositeOperation = "source-over";
+  }
+}
+
+/* ===========================
+   DESCARGA
+   =========================== */
+
+function setupDownload(){
+  const btn = document.getElementById("download");
+  btn.addEventListener("click",()=>{
+    // Asegura un render antes de exportar
+    draw();
+    const url = document.getElementById("c").toDataURL("image/png");
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "mezcla.png";
+    a.click();
+  });
+}
+
+/* ===========================
+   INICIO
+   =========================== */
+
+function setupUI(){
+  renderRows();
+  attachRowHandlers();
+
+  document.getElementById("add").addEventListener("click",()=>{
+    if(state.rows.length>=MAX_ROWS) return;
+    // evita duplicar color exacto
+    const next = COLORS.find(c=> !state.rows.some(r=>r.color===c.hex) ) || COLORS[0];
+    state.rows.push({ color: next.hex, label: next.name, pct: 0 });
+    normalizeTo100(state.rows);
+    renderRows(); draw();
+  });
+
+  // primer trazo al terminar preload
+  const iv = setInterval(()=>{
+    if(state.ready){ clearInterval(iv); draw(); }
+  },60);
+
+  setupDownload();
+}
+
+(async function(){
+  await preload();
+  setupUI();
+})();
+</script>
+</body>
+</html>
